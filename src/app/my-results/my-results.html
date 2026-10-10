@@ -1,0 +1,13 @@
+<h2>My Test Results</h2>
+<table>
+  <tr>
+    <th>Test Name</th>
+    <th>Score</th>
+    <th>Date</th>
+  </tr>
+  <tr *ngFor="let res of results">
+    <td>{{ res.title }}</td>
+    <td>{{ res.score }}</td>
+    <td>{{ res.date }}</td>
+  </tr>
+</table>

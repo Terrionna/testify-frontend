@@ -1,0 +1,110 @@
+.nav {
+  background-color: #ffffff;
+  border-bottom: 3px solid #111111;
+  padding: 12px 24px;
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+  font-family: 'Comic Neue', cursive, sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111111;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: pointer;
+}
+
+.logo-icon {
+  height: 38px;
+  width: auto;
+  display: inline-block;
+  vertical-align: middle;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.logo:hover .logo-icon {
+  transform: scale(1.2) rotate(-8deg);
+}
+
+.nav-links {
+  margin-left: auto;
+}
+
+.nav-btn {
+  font-family: 'Comic Neue', cursive, sans-serif;
+  font-weight: 700;
+  text-decoration: none;
+  color: #111111;
+  background-color: #ffffff;
+  border: 3px solid #111111;
+  padding: 8px 18px;
+  box-shadow: 3px 3px 0px #111111;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+  .nav-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0px #ff69b4;
+  }
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* Secret Interactive Game Overlay Styles */
+.floating-mascot-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: 9999;
+  cursor: pointer;
+}
+
+.mascot-dialog {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #00f0ff;
+  border: 3px solid #111111;
+  padding: 12px 24px;
+  box-shadow: 5px 5px 0px #111111;
+  font-family: 'Comic Neue', cursive, sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-align: center;
+  pointer-events: none;
+}
+
+.interactive-octopus {
+  position: absolute;
+  width: 75px;
+  height: auto;
+  cursor: pointer;
+  filter: drop-shadow(4px 4px 0px #111111);
+  transition: transform 0.05s linear;
+}
+
+  .interactive-octopus:hover {
+    transform: scale(1.15);
+  }
