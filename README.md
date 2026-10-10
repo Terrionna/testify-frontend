@@ -36,5 +36,6 @@ npm install
 Ignite the local development server:
 
 Bash
+
 ng serve
 Target local port 4200 via web browser to establish visual contact with the interface.
