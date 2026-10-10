@@ -1,20 +1,29 @@
 import { Routes } from '@angular/router';
-import { SignIn } from './sign-in/sign-in';
-import { Register } from './register/register';
 import { TestList } from './test-list/test-list';
 import { TakeTest } from './take-test/take-test';
 import { MyResults } from './my-results/my-results';
-import { VerifyCertificate } from './verify-certificate/verify-certificate';
 import { AdminTests } from './admin-tests/admin-tests';
+import { authGuard, adminGuard } from './auth.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'test-list', pathMatch: 'full' },
-  { path: 'sign-in', component: SignIn },
-  { path: 'register', component: Register },
-  { path: 'test-list', component: TestList },
-  { path: 'take-test/:id', component: TakeTest },
-  { path: 'my-results', component: MyResults },
-  { path: 'verify-certificate', component: VerifyCertificate },
-  { path: 'admin-tests', component: AdminTests },
-  { path: '**', redirectTo: 'test-list' }
+  {
+    path: 'test-list',
+    component: TestList,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'take-test/:id',
+    component: TakeTest,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'my-results',
+    component: MyResults,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'admin-tests',
+    component: AdminTests,
+    canActivate: [adminGuard]
+  }
 ];
