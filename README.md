@@ -25,11 +25,13 @@ Follow these extraction procedures to replicate the node locally:
 ## Extract the repository from remote storage:
 
 Bash
+
 git clone https://github.com/your-username/testify-frontend.git
 cd testify-frontend
 Secure required node dependencies:
 
 Bash
+
 npm install
 Ignite the local development server:
 
