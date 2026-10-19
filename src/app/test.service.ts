@@ -1,73 +1,133 @@
-import { Injectable } from '@angular/core';
+// API service for Testify.
+// Every call to the backend for tests, attempts, certificates, and stats lives here.
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import {
-  TestSummary,
-  TestDetail,
-  AttemptResult,
-  Attempt,
-  Certificate,
-  CertificateVerification,
-  AdminTest
-} from './models';
+import { environment } from '../environments/environment';
 
-const API_URL = '/api';
+// One test in the list.
+export interface TestSummary {
+  _id: string;
+  title: string;
+  version: number;
+  passingScore: number;
+  // Only the admin list includes this.
+  published?: boolean;
+}
+
+// One question. The correct answer is only sent to admins.
+export interface Question {
+  text: string;
+  choices: string[];
+  answer?: number;
+}
+
+// One test with its questions.
+export interface TestDetail extends TestSummary {
+  questions: Question[];
+}
+
+// What the backend sends back after a test is submitted.
+export interface AttemptResult {
+  score: number;
+  passed: boolean;
+  correct: number;
+  total: number;
+  certificateCode: string | null;
+}
+
+// One saved attempt in the results list.
+export interface AttemptRow {
+  _id: string;
+  test: { _id: string; title: string };
+  testVersion: number;
+  score: number;
+  passed: boolean;
+  takenAt: string;
+}
+
+// One certificate in the results list.
+export interface CertificateRow {
+  _id: string;
+  test: { _id: string; title: string };
+  testVersion: number;
+  code: string;
+  issuedAt: string;
+}
+
+// What the public verify page shows.
+export interface VerifiedCertificate {
+  name: string;
+  title: string;
+  version: number;
+  issuedAt: string;
+}
+
+// The numbers on the admin page.
+export interface Stats {
+  totals: { users: number; attempts: number; certificates: number };
+  tests: {
+    testId: string;
+    title: string;
+    version: number;
+    attempts: number;
+    takers: number;
+    averageScore: number;
+    passRate: number;
+  }[];
+}
+
+// The data an admin sends to create a test.
+export interface NewTest {
+  title: string;
+  passingScore: number;
+  version: number;
+  questions: { text: string; choices: string[]; answer: number }[];
+}
 
 @Injectable({ providedIn: 'root' })
 export class TestService {
-  constructor(private http: HttpClient) { }
+  private http = inject(HttpClient);
+  private api = environment.apiUrl;
 
-  listPublished(): Observable<TestSummary[]> {
-    return this.http.get<TestSummary[]>(`${API_URL}/tests`);
+  // Signed in users.
+  listTests() {
+    return this.http.get<TestSummary[]>(`${this.api}/tests`);
+  }
+  getTest(id: string) {
+    return this.http.get<TestDetail>(`${this.api}/tests/${id}`);
+  }
+  submitAttempt(id: string, answers: number[]) {
+    return this.http.post<AttemptResult>(`${this.api}/tests/${id}/attempts`, { answers });
+  }
+  myAttempts() {
+    return this.http.get<AttemptRow[]>(`${this.api}/attempts/mine`);
+  }
+  myCertificates() {
+    return this.http.get<CertificateRow[]>(`${this.api}/certificates/mine`);
   }
 
-  getPublished(id: string): Observable<TestDetail> {
-    return this.http.get<TestDetail>(`${API_URL}/tests/${id}`);
+  // Open to everyone.
+  verifyCertificate(code: string) {
+    return this.http.get<VerifiedCertificate>(`${this.api}/certificates/verify/${encodeURIComponent(code)}`);
   }
 
-  submit(id: string, answers: number[]): Observable<AttemptResult> {
-    return this.http.post<AttemptResult>(`${API_URL}/tests/${id}/attempts`, { answers });
+  // Admins only.
+  adminListTests() {
+    return this.http.get<TestSummary[]>(`${this.api}/admin/tests`);
   }
-
-  myAttempts(): Observable<Attempt[]> {
-    return this.http.get<Attempt[]>(`${API_URL}/attempts/mine`);
+  adminCreateTest(body: NewTest) {
+    return this.http.post<TestSummary>(`${this.api}/admin/tests`, body);
   }
-
-  myCertificates(): Observable<Certificate[]> {
-    return this.http.get<Certificate[]>(`${API_URL}/certificates/mine`);
+  adminPublishTest(id: string) {
+    return this.http.post<TestSummary>(`${this.api}/admin/tests/${id}/publish`, {});
   }
-
-  verifyCertificate(code: string): Observable<CertificateVerification> {
-    return this.http.get<CertificateVerification>(`${API_URL}/certificates/verify/${code}`);
+  adminNewVersion(id: string) {
+    return this.http.post<TestSummary>(`${this.api}/admin/tests/${id}/versions`, {});
   }
-
-  listAll(): Observable<AdminTest[]> {
-    return this.http.get<AdminTest[]>(`${API_URL}/admin/tests`);
+  adminDeleteTest(id: string) {
+    return this.http.delete<void>(`${this.api}/admin/tests/${id}`);
   }
-
-  create(test: Omit<AdminTest, '_id' | 'published'>): Observable<AdminTest> {
-    return this.http.post<AdminTest>(`${API_URL}/admin/tests`, test);
-  }
-
-  update(id: string, test: Omit<AdminTest, '_id' | 'published'>): Observable<AdminTest> {
-    return this.http.put<AdminTest>(`${API_URL}/admin/tests/${id}`, test);
-  }
-
-  publish(id: string): Observable<AdminTest> {
-    return this.http.post<AdminTest>(`${API_URL}/admin/tests/${id}/publish`, {});
-  }
-
-  newVersion(id: string): Observable<AdminTest> {
-    return this.http.post<AdminTest>(`${API_URL}/admin/tests/${id}/versions`, {});
-  }
-
-  history(id: string): Observable<{ title: string; latest: unknown; versions: unknown[] }> {
-    return this.http.get<{ title: string; latest: unknown; versions: unknown[] }>(
-      `${API_URL}/admin/tests/${id}/history`
-    );
-  }
-
-  remove(id: string): Observable<void> {
-    return this.http.delete<void>(`${API_URL}/admin/tests/${id}`);
+  adminStats() {
+    return this.http.get<Stats>(`${this.api}/admin/stats`);
   }
 }

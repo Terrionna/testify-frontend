@@ -1,35 +1,36 @@
-<nav class="nav">
+<header class="nav">
   <div class="nav-container">
-    <a routerLink="/test-list" class="logo" (click)="onLogoClick($event)">
+    <nav class="nav-left">
+      @if (auth.isLoggedIn()) {
+      <a class="nav-link" routerLink="/test-list" routerLinkActive="active">Tests</a>
+      <a class="nav-link" routerLink="/my-results" routerLinkActive="active">My Results</a>
+      }
+      <a class="nav-link" routerLink="/verify-certificate" routerLinkActive="active">Verify Cert</a>
+      @if (auth.isAdmin()) {
+      <a class="nav-link" routerLink="/admin-tests" routerLinkActive="active">Admin</a>
+      }
+    </nav>
+
+    <a class="logo" routerLink="/">
       <span>TEST</span>
-      <img src="/octopus.png"
-           alt="🐙"
-           class="logo-icon"
-           [class.bouncing]="isBouncing"
-           (click)="triggerMascotGame($event)" />
+      <img class="logo-icon" src="octopus.png" alt="" />
       <span>IFY</span>
     </a>
+
     <div class="nav-links">
-      <a routerLink="/sign-in" class="nav-btn">Sign In</a>
+      @if (auth.isLoggedIn()) {
+      <span class="user-name">{{ auth.name() }}</span>
+      <a class="nav-btn" (click)="signOut()">Sign Out</a>
+      } @else {
+      <a class="nav-btn" routerLink="/sign-in">Sign In</a>
+      <a class="nav-btn" routerLink="/register">Register</a>
+      }
     </div>
   </div>
-</nav>
-
-<!-- Interactive Floating Easter Egg Mascot -->
-<div *ngIf="isGameActive"
-     class="floating-mascot-overlay"
-     (click)="popMascot()">
-  <div class="mascot-dialog">
-    <p>🎉 You found the secret octopus! Click anywhere to pop me back! (Score: {{ catchCount }})</p>
-  </div>
-  <img src="/octopus.png"
-       alt="Secret Mascot"
-       class="interactive-octopus"
-       [style.top.px]="mascotY"
-       [style.left.px]="mascotX"
-       (click)="catchMascot($event)" />
-</div>
+</header>
 
 <main class="container">
-  <router-outlet></router-outlet>
+  <router-outlet />
 </main>
+
+<app-octopus-mascot />

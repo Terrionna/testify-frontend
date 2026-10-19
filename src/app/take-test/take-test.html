@@ -1,7 +1,42 @@
-<div class="test-container">
-  <h2>Taking Test ID: {{ testId }}</h2>
-  <div class="question-box">
-    <p>Question 1: What is the primary purpose of Angular components?</p>
-  </div>
-  <button class="btn-primary">Submit Test</button>
+@if (loading()) {
+<p>Loading...</p>
+}
+@if (error()) {
+<p class="message bad">{{ error() }}</p>
+}
+
+@if (test(); as t) {
+<h2>{{ t.title }}</h2>
+<p>Version {{ t.version }} &middot; Passing score {{ t.passingScore }}%</p>
+
+  @if (result(); as r) {
+<div class="card">
+  <h3>Your score: {{ r.score }}%</h3>
+  <p>{{ r.correct }} of {{ r.total }} correct</p>
+  @if (r.passed) {
+  <p class="message good">You passed.</p>
+  @if (r.certificateCode) {
+  <p>Your certificate code is <strong>{{ r.certificateCode }}</strong></p>
+  <a class="button" [routerLink]="['/verify-certificate', r.certificateCode]">View certificate</a>
+  }
+  } @else {
+  <p class="message bad">You did not pass. Try again.</p>
+  }
+  <a class="button" routerLink="/my-results">My Results</a>
+  <a class="button" routerLink="/test-list">All Tests</a>
 </div>
+  } @else {
+    @for (question of t.questions; track $index; let q = $index) {
+<div class="card">
+  <p><strong>Question {{ q + 1 }}:</strong> {{ question.text }}</p>
+  @for (choice of question.choices; track $index; let c = $index) {
+  <label class="option" [class.selected]="answers()[q] === c">
+    <input type="radio" [name]="'question-' + q" [checked]="answers()[q] === c" (change)="choose(q, c)" />
+    {{ choice }}
+  </label>
+  }
+</div>
+    }
+<button class="button" [disabled]="!allAnswered() || busy()" (click)="submit()">Submit Test</button>
+  }
+}

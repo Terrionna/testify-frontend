@@ -1,19 +1,22 @@
 <div class="auth-card">
   <h2>Create Account</h2>
-  <form>
-    <div class="form-group">
-      <label>Name</label>
-      <input type="text" placeholder="Enter your name" />
-    </div>
-    <div class="form-group">
-      <label>Email</label>
-      <input type="email" placeholder="Enter your email" />
-    </div>
-    <div class="form-group">
-      <label>Password</label>
-      <input type="password" placeholder="Create a password" />
-    </div>
-    <button type="submit" class="btn-primary">Register</button>
+  <form (submit)="submit($event, name.value, email.value, password.value)">
+    <label class="field">
+      Name
+      <input #name class="field-input" type="text" placeholder="Enter your name" required />
+    </label>
+    <label class="field">
+      Email
+      <input #email class="field-input" type="email" placeholder="Enter your email" required />
+    </label>
+    <label class="field">
+      Password
+      <input #password class="field-input" type="password" placeholder="At least 8 characters" required minlength="8" />
+    </label>
+    <button type="submit" class="button" [disabled]="busy()">Register</button>
   </form>
+  @if (error()) {
+  <p class="message bad">{{ error() }}</p>
+  }
   <p>Already have an account? <a routerLink="/sign-in">Sign In</a></p>
 </div>

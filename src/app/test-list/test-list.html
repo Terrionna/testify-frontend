@@ -1,29 +1,27 @@
 <div class="test-list-wrapper">
   <div class="hero-header">
-    <h1>Available Tests</h1>
+    <h2>Available Tests</h2>
     <p>Test your knowledge with fun, interactive quizzes.</p>
   </div>
 
+  @if (loading()) {
+  <p>Loading...</p>
+  }
+  @if (error()) {
+  <p class="message bad">{{ error() }}</p>
+  }
+  @if (!loading() && !error() && tests().length === 0) {
+  <p>No tests are published yet.</p>
+  }
+
   <div class="test-grid">
-    <div class="card" routerLink="/take-test/js-fundamentals">
-      <div class="card-icon">⚡</div>
-      <h3>JavaScript Fundamentals</h3>
-      <p>10 Questions • Core JS, scope, types & async behavior.</p>
-      <span class="play-link">Take Test →</span>
+    @for (test of tests(); track test._id) {
+    <div class="card test-card">
+      <div class="card-icon">{{ iconFor(test.title) }}</div>
+      <h3>{{ test.title }}</h3>
+      <p>Version {{ test.version }} &middot; Passing score {{ test.passingScore }}%</p>
+      <a [routerLink]="['/take-test', test._id]" class="play-link">Take Test &rarr;</a>
     </div>
-
-    <div class="card" routerLink="/take-test/angular-arch">
-      <div class="card-icon">🅰️</div>
-      <h3>Angular Architecture</h3>
-      <p>8 Questions • Standalone components, DI & reactivity.</p>
-      <span class="play-link">Take Test →</span>
-    </div>
-
-    <div class="card" routerLink="/take-test/node-apis">
-      <div class="card-icon">🚀</div>
-      <h3>Node & Express APIs</h3>
-      <p>12 Questions • Routing, middleware, MongoDB & REST.</p>
-      <span class="play-link">Take Test →</span>
-    </div>
+    }
   </div>
 </div>

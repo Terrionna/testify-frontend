@@ -1,5 +1,102 @@
-<div class="admin-header">
-  <h2>Admin Dashboard: Manage Tests</h2>
-  <button class="btn-primary">+ Add New Test</button>
+<h2>Admin Dashboard: Manage Tests</h2>
+
+@if (error()) {
+<p class="message bad">{{ error() }}</p>
+}
+
+@if (stats(); as s) {
+<div class="card">
+  <strong>{{ s.totals.users }}</strong> users &middot;
+  <strong>{{ s.totals.attempts }}</strong> attempts &middot;
+  <strong>{{ s.totals.certificates }}</strong> certificates
 </div>
-<p>Admin management table goes here.</p>
+  @if (s.tests.length > 0) {
+<table>
+  <tr>
+    <th>Test</th>
+    <th>Version</th>
+    <th>Attempts</th>
+    <th>Takers</th>
+    <th>Average score</th>
+    <th>Pass rate</th>
+  </tr>
+  @for (row of s.tests; track row.testId) {
+  <tr>
+    <td>{{ row.title }}</td>
+    <td>{{ row.version }}</td>
+    <td>{{ row.attempts }}</td>
+    <td>{{ row.takers }}</td>
+    <td>{{ row.averageScore }}%</td>
+    <td>{{ row.passRate }}%</td>
+  </tr>
+  }
+</table>
+  }
+}
+
+<button class="button" (click)="toggleForm()">{{ showForm() ? 'Cancel' : '+ Add New Test' }}</button>
+
+@if (showForm()) {
+<form class="card" (submit)="save($event, title.value, passingScore.value, version.value)">
+  <label class="field">
+    Title
+    <input #title class="field-input" type="text" required />
+  </label>
+  <label class="field">
+    Passing score (0 to 100)
+    <input #passingScore class="field-input" type="number" min="0" max="100" value="80" required />
+  </label>
+  <label class="field">
+    Version
+    <input #version class="field-input" type="number" min="1" value="1" required />
+  </label>
+
+  @for (q of questions(); track $index; let i = $index) {
+  <div class="card">
+    <label class="field">
+      Question {{ i + 1 }}
+      <input class="field-input" type="text" [value]="q.text" (input)="setField(i, 'text', $event)" />
+    </label>
+    <label class="field">
+      Choices (one per line, at least two)
+      <textarea class="field-input" rows="4" [value]="q.choices" (input)="setField(i, 'choices', $event)"></textarea>
+    </label>
+    <label class="field">
+      Number of the correct choice (the first line is 1)
+      <input class="field-input" type="number" min="1" [value]="q.answer" (input)="setField(i, 'answer', $event)" />
+    </label>
+    @if (questions().length > 1) {
+    <button type="button" class="button" (click)="removeQuestion(i)">Remove question</button>
+    }
+  </div>
+  }
+  <button type="button" class="button" (click)="addQuestion()">+ Add question</button>
+  <button type="submit" class="button" [disabled]="busy()">Save as draft</button>
+</form>
+}
+
+<h3>All tests</h3>
+<table>
+  <tr>
+    <th>Title</th>
+    <th>Version</th>
+    <th>Passing score</th>
+    <th>Status</th>
+    <th>Actions</th>
+  </tr>
+  @for (test of tests(); track test._id) {
+  <tr>
+    <td>{{ test.title }}</td>
+    <td>{{ test.version }}</td>
+    <td>{{ test.passingScore }}%</td>
+    <td>{{ test.published ? 'Published' : 'Draft' }}</td>
+    <td>
+      @if (!test.published) {
+      <button class="button" (click)="publish(test._id)">Publish</button>
+      <button class="button" (click)="remove(test._id)">Delete</button>
+      }
+      <button class="button" (click)="newVersion(test._id)">New version</button>
+    </td>
+  </tr>
+  }
+</table>

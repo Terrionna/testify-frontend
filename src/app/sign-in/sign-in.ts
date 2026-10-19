@@ -1,40 +1,36 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+// Sign-in page for Testify.
+import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-sign-in',
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [RouterLink],
   templateUrl: './sign-in.html',
   styleUrl: './sign-in.css'
 })
 export class SignIn {
-  email = '';
-  password = '';
-  errorMessage = '';
+  private auth = inject(AuthService);
+  private router = inject(Router);
 
-  constructor(private http: HttpClient, private router: Router) { }
+  // The message shown under the form when sign-in fails.
+  error = signal('');
+  // True while the request is running, so the button cannot be pressed twice.
+  busy = signal(false);
 
-  onSubmit(): void {
-    if (!this.email || !this.password) {
-      this.errorMessage = 'Please fill in all fields.';
-      return;
-    }
-
-    this.http.post<any>('/api/auth/login', { email: this.email, password: this.password })
-      .subscribe({
-        next: (response) => {
-          if (response && response.token) {
-            localStorage.setItem('token', response.token);
-          }
-          this.router.navigate(['/test-list']);
-        },
-        error: (err) => {
-          this.errorMessage = err.error?.message || 'Sign in failed. Please check your credentials.';
-        }
-      });
+  // Sends the email and password to the backend.
+  submit(event: Event, email: string, password: string): void {
+    // Stop the browser from reloading the page.
+    event.preventDefault();
+    this.error.set('');
+    this.busy.set(true);
+    this.auth.login(email, password).subscribe({
+      next: () => this.router.navigateByUrl('/test-list'),
+      error: (err) => {
+        // Show the backend's message, or a general one when the backend cannot be reached.
+        this.error.set(err.error?.message ?? 'Could not reach the server');
+        this.busy.set(false);
+      }
+    });
   }
 }

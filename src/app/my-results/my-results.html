@@ -1,13 +1,44 @@
 <h2>My Test Results</h2>
+@if (loading()) {
+<p>Loading...</p>
+}
+@if (error()) {
+<p class="message bad">{{ error() }}</p>
+}
+
+@if (!loading() && attempts().length === 0) {
+<p>You have not taken a test yet. <a routerLink="/test-list">Take one</a></p>
+} @else {
 <table>
   <tr>
-    <th>Test Name</th>
+    <th>Test</th>
+    <th>Version</th>
     <th>Score</th>
+    <th>Result</th>
     <th>Date</th>
   </tr>
-  <tr *ngFor="let res of results">
-    <td>{{ res.title }}</td>
-    <td>{{ res.score }}</td>
-    <td>{{ res.date }}</td>
+  @for (attempt of attempts(); track attempt._id) {
+  <tr>
+    <td>{{ attempt.test.title }}</td>
+    <td>{{ attempt.testVersion }}</td>
+    <td>{{ attempt.score }}%</td>
+    <td>{{ attempt.passed ? 'Passed' : 'Not passed' }}</td>
+    <td>{{ attempt.takenAt | date: 'mediumDate' }}</td>
   </tr>
+  }
 </table>
+}
+
+<h2>My Certificates</h2>
+@if (certificates().length === 0) {
+<p>You have not earned a certificate yet.</p>
+}
+@for (cert of certificates(); track cert._id) {
+<div class="certificate-card">
+  <h3>{{ cert.test.title }}</h3>
+  <p>Version {{ cert.testVersion }} &middot; Issued {{ cert.issuedAt | date: 'mediumDate' }}</p>
+  <p>Code: <strong>{{ cert.code }}</strong></p>
+  <a class="button" [routerLink]="['/verify-certificate', cert.code]">View</a>
+  <a class="button" [href]="linkedInUrl(cert)" target="_blank" rel="noopener">Add to LinkedIn Profile</a>
+</div>
+}

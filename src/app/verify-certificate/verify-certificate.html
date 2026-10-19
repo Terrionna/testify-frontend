@@ -1,10 +1,22 @@
 <div class="auth-card">
   <h2>Verify Certificate</h2>
-  <form>
-    <div class="form-group">
-      <label>Certificate ID</label>
-      <input type="text" placeholder="Enter certificate ID" />
-    </div>
-    <button type="submit" class="btn-primary">Verify</button>
+  <form (submit)="submit($event, codeInput.value)">
+    <label class="field">
+      Certificate code
+      <input #codeInput class="field-input" type="text" placeholder="Enter certificate code" [value]="code()" required />
+    </label>
+    <button type="submit" class="button" [disabled]="busy()">Verify</button>
   </form>
+  @if (error()) {
+  <p class="message bad">{{ error() }}</p>
+  }
 </div>
+
+@if (certificate(); as c) {
+<div class="certificate-card">
+  <p class="message good">This certificate is valid.</p>
+  <h3>{{ c.name }}</h3>
+  <p>Passed <strong>{{ c.title }}</strong> (version {{ c.version }})</p>
+  <p>Issued {{ c.issuedAt | date: 'mediumDate' }}</p>
+</div>
+}
